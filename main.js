@@ -84,7 +84,7 @@ scene.add(stars);
 // Location Points
 
 const pointGeometry = new THREE.BoxBufferGeometry(0.1, 0.1, 0.8);
-const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const pointMaterial = new THREE.MeshBasicMaterial({ color: 0x3bf7ff });
 
 const createPoint = (lat, lng) => {
   const point = new THREE.Mesh(pointGeometry, pointMaterial);
@@ -100,7 +100,17 @@ const createPoint = (lat, lng) => {
 
   point.position.set(pointX, pointY, pointZ);
   point.lookAt(0, 0, 0);
-  // point.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.1));
+  // point.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.2));
+
+
+  gsap.to(point.scale, {
+    z: 0,
+    duration: 2,
+    yoyo: true,
+    repeat: -1,
+    ease: 'linear',
+    delay: Math.random()
+  })
 
   group.add(point);
 };
