@@ -83,10 +83,14 @@ scene.add(stars);
 
 // Location Points
 
-const pointGeometry = new THREE.BoxBufferGeometry(0.1, 0.1, 0.8);
-const pointMaterial = new THREE.MeshBasicMaterial({ color: 0x3bf7ff });
-
 const createPoint = (lat, lng) => {
+  const pointGeometry = new THREE.BoxBufferGeometry(0.2, 0.2, 0.8);
+  const pointMaterial = new THREE.MeshBasicMaterial({
+    color: 0x3bf7ff,
+    transparent: true,
+    opacity: 0.4,
+  });
+
   const point = new THREE.Mesh(pointGeometry, pointMaterial);
 
   const latitude = (lat / 180) * Math.PI;
@@ -102,15 +106,14 @@ const createPoint = (lat, lng) => {
   point.lookAt(0, 0, 0);
   // point.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.2));
 
-
   gsap.to(point.scale, {
-    z: 0,
+    z: 1.4,
     duration: 2,
     yoyo: true,
     repeat: -1,
-    ease: 'linear',
-    delay: Math.random()
-  })
+    ease: "linear",
+    delay: Math.random(),
+  });
 
   group.add(point);
 };
@@ -127,20 +130,54 @@ const mouse = {
   y: 0,
 };
 
+// Raycaster
+const raycaster = new THREE.Raycaster();
+const popupElement = document.querySelector("#popup");
+const populationHeader = document.querySelector("#populationHeader");
+const populationValue = document.querySelector("#populationValue");
+
 const animate = () => {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
-  // sphere.rotation.y += 0.001;
-  gsap.to(group.rotation, {
-    x: -mouse.y * 1.8,
-    y: mouse.x * 1.8,
-    duration: 2,
-  });
+  group.rotation.y += 0.002;
+
+  // gsap.to(group.rotation, {
+  //   x: -mouse.y * 1.8,
+  //   y: mouse.x * 1.8,
+  //   duration: 2,
+  // });
+
+  gsap.set(popupElement, {
+    display: 'none'
+  })
+
+  // update the picking ray with the camera and pointer position
+  raycaster.setFromCamera(mouse, camera);
+
+  // calculate objects intersecting the picking ray
+  const intersects = raycaster.intersectObjects(
+    group.children.filter((mesh) => mesh.geometry.type === "BoxGeometry")
+  );
+
+  group.children.forEach((mesh) => (mesh.material.opacity = 0.4));
+
+  for (let i = 0; i < intersects.length; i++) {
+    intersects[i].object.material.opacity = 1;
+
+    gsap.set(popupElement, {
+      display: "block",
+    });
+  }
 };
 
 animate();
 
 window.addEventListener("mousemove", (e) => {
-  mouse.x = (e.clientX / innerWidth) * 2 - 1;
+  mouse.x = ((e.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1;
   mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+
+    gsap.set(popupElement, {
+      x: e.clientX,
+      y: e.clientY,
+    });
 });
