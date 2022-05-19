@@ -84,7 +84,14 @@ scene.add(stars);
 // Location Points
 
 const createLabel = ({ lat, lng, country, population }) => {
-  const labelGeometry = new THREE.BoxBufferGeometry(0.2, 0.2, 0.8);
+  const scale = parseInt(population) / 1000000000;
+  const zScale = 0.8 * scale;
+
+  const labelGeometry = new THREE.BoxBufferGeometry(
+    Math.max(0.1, 0.2 * scale),
+    Math.max(0.1, 0.2 * scale),
+    Math.max(zScale, 0.4 * Math.random())
+  );
   const labelMaterial = new THREE.MeshBasicMaterial({
     color: 0x3bf7ff,
     transparent: true,
@@ -104,7 +111,9 @@ const createLabel = ({ lat, lng, country, population }) => {
 
   label.position.set(labelX, labelY, labelZ);
   label.lookAt(0, 0, 0);
-  // label.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.2));
+  label.geometry.applyMatrix4(
+    new THREE.Matrix4().makeTranslation(0, 0, -zScale / 2)
+  );
 
   gsap.to(label.scale, {
     z: 1.4,
