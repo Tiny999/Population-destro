@@ -1,10 +1,10 @@
 import * as THREE from "three";
+import countries from "./countryData.json";
 import gsap from "gsap";
 import vertexShader from "./shaders/vertex.glsl";
 import fragmentShader from "./shaders/fragment.glsl";
 import atmosphereVertexShader from "./shaders/atmosphereVertex.glsl";
 import atmosphereFragmentShader from "./shaders/atmosphereFragment.glsl";
-import { Float32BufferAttribute } from "three";
 
 //Texture Loader
 const textureLoader = new THREE.TextureLoader();
@@ -83,30 +83,30 @@ scene.add(stars);
 
 // Location Points
 
-const createPoint = (lat, lng) => {
-  const pointGeometry = new THREE.BoxBufferGeometry(0.2, 0.2, 0.8);
-  const pointMaterial = new THREE.MeshBasicMaterial({
+const createLabel = ({ lat, lng, country, population }) => {
+  const labelGeometry = new THREE.BoxBufferGeometry(0.2, 0.2, 0.8);
+  const labelMaterial = new THREE.MeshBasicMaterial({
     color: 0x3bf7ff,
     transparent: true,
     opacity: 0.4,
   });
 
-  const point = new THREE.Mesh(pointGeometry, pointMaterial);
+  const label = new THREE.Mesh(labelGeometry, labelMaterial);
 
   const latitude = (lat / 180) * Math.PI;
   const longitude = (lng / 180) * Math.PI;
   const radius = 5;
 
   //23.6345° N, 102.5528° W
-  const pointX = radius * Math.cos(latitude) * Math.sin(longitude);
-  const pointY = radius * Math.sin(latitude);
-  const pointZ = radius * Math.cos(latitude) * Math.cos(longitude);
+  const labelX = radius * Math.cos(latitude) * Math.sin(longitude);
+  const labelY = radius * Math.sin(latitude);
+  const labelZ = radius * Math.cos(latitude) * Math.cos(longitude);
 
-  point.position.set(pointX, pointY, pointZ);
-  point.lookAt(0, 0, 0);
-  // point.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.2));
+  label.position.set(labelX, labelY, labelZ);
+  label.lookAt(0, 0, 0);
+  // label.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.2));
 
-  gsap.to(point.scale, {
+  gsap.to(label.scale, {
     z: 1.4,
     duration: 2,
     yoyo: true,
@@ -115,15 +115,20 @@ const createPoint = (lat, lng) => {
     delay: Math.random(),
   });
 
-  group.add(point);
+  label.country = country;
+  label.population = population;
+
+  group.add(label);
 };
 
-createPoint(23.6345, -102.5528);
-createPoint(-14.235, -51.9253);
-createPoint(20.5937, 78.9629);
-createPoint(85.8617, 104.1957);
-createPoint(37.0902, -95.7129);
-createPoint(9.082, 8.6753);
+countries.forEach((country) => {
+  createLabel({
+    lat: country.latlng[0],
+    lng: country.latlng[1],
+    country: country.name,
+    population: parseInt(country.population).toLocaleString(),
+  });
+});
 
 const mouse = {
   x: 0,
@@ -148,8 +153,8 @@ const animate = () => {
   // });
 
   gsap.set(popupElement, {
-    display: 'none'
-  })
+    display: "none",
+  });
 
   // update the picking ray with the camera and pointer position
   raycaster.setFromCamera(mouse, camera);
@@ -162,11 +167,15 @@ const animate = () => {
   group.children.forEach((mesh) => (mesh.material.opacity = 0.4));
 
   for (let i = 0; i < intersects.length; i++) {
-    intersects[i].object.material.opacity = 1;
+    const currentItem = intersects[i].object;
+    currentItem.material.opacity = 1;
 
     gsap.set(popupElement, {
       display: "block",
     });
+
+    populationHeader.innerHTML = currentItem.country;
+    populationValue.innerHTML = currentItem.population;
   }
 };
 
@@ -176,8 +185,8 @@ window.addEventListener("mousemove", (e) => {
   mouse.x = ((e.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1;
   mouse.y = -(e.clientY / innerHeight) * 2 + 1;
 
-    gsap.set(popupElement, {
-      x: e.clientX,
-      y: e.clientY,
-    });
+  gsap.set(popupElement, {
+    x: e.clientX,
+    y: e.clientY,
+  });
 });

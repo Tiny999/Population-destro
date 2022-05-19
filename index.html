@@ -14,6 +14,9 @@
     />
 
     <style>
+      body {
+        font-family: "Lato", sans-serif;
+      }
       .exo {
         font-family: "Exo 2", sans-serif;
       }
@@ -26,15 +29,17 @@
   </head>
   <body>
     <div id="popup" class="bg-black bg-opacity-75 fixed px-4 py-2 rounded">
-      <h1 id="populationHeader" class="text-white text-xs">Headline</h1>
-      <p id="populationValue" class="text-white font-bold text-lg">5000</p>
+      <h1 class="text-white text-xs">
+        <span id="populationHeader"></span> Population
+      </h1>
+      <p class="text-white font-bold text-lg" id="populationValue">1100</p>
     </div>
     <div id="app">
       <div class="flex h-screen">
         <div class="w-1/2 flex flex-col justify-center px-8 bg-black">
-          <div style="max-width: 500px" class="mx-auto">
+          <div style="max-width: 450px" class="mx-auto">
             <h1 class="text-white text-4xl font-semibold mb-8 exo leading-none">
-              CHALLENGING THE STANDARD OF SPACE EXPLORATION
+              EARTH'S LARGEST COUNTRY BASED POPULATION INDEX
             </h1>
             <p class="text-gray-400 mb-8 lato">
               Millions of developers and companies build, ship, and maintain
